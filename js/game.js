@@ -30,9 +30,8 @@ var velocity = new Phaser.Math.Vector2();
 var maxBullets = 1;
 var bullet;
 var shield;
-var graphics1;
-var graphics2;
-var path
+var graphics;
+var path;
 
 function preload() {
   this.load.image('bullet', 'assets/bullet.png');
@@ -53,6 +52,7 @@ function create() {
   turretGun = this.add.circle(width / 2, (height + 100) / 2, 50, 0x00316E, 1);
   turretBarrel = this.add.rectangle(width / 2, (height + 100) / 2, 30, 110, 0x00316E, 1).setOrigin(0.5, 1);
 
+  shield = this.add.arc(width / 2, (height + 100) / 2, 125, 240, 300, false).setStrokeStyle(8, 0x00316E, 1);
 
 
   var t = this;
@@ -63,12 +63,6 @@ function create() {
 
 function update() {
 
-  graphics1 = this.add.graphics();
-  graphics1.fillStyle(50, 0xff00ff, 1);
-  graphics1.beginPath();
-  graphics1.arc(400, 300, 200, Phaser.Math.DegToRad(90), Phaser.Math.DegToRad(180), true);
-  graphics1.strokePath();
-
   blocked = bullet.body.blocked;
   if (blocked["up"] == true || blocked["right"] == true || blocked["left"] == true || blocked["down"] == true) {
     bullet.disableBody(true, true);
@@ -76,8 +70,11 @@ function update() {
 }
 
 var f = function(pointer) {
+
   angle = Phaser.Math.RAD_TO_DEG * Phaser.Math.Angle.Between(turretBarrel.x, turretBarrel.y, pointer.x, pointer.y);
   turretBarrel.setAngle(angle + 90);
+  shield.setAngle(angle + 90);
+
 }
 
 var d = function(pointer) {
