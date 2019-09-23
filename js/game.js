@@ -30,19 +30,14 @@ var velocity = new Phaser.Math.Vector2();
 var maxBullets = 1;
 var bullet;
 var shield;
-var graphics;
 var path;
 
 function preload() {
+  this.load.image('spider', 'assets/spider.png');
   this.load.image('bullet', 'assets/bullet.png');
 }
 
 function create() {
-
-  var magazine = this.add.group({
-    key: 'bullet',
-    frameQuantity: maxBullets
-  });
 
   var bg = this.add.rectangle(0, 0, width, height, 0x001540, 1).setOrigin(0, 0);
   var turretBase = this.add.rectangle(width / 2 - 50, height - 300, 100, 300, 0x00316E, 1).setOrigin(0, 0);
@@ -54,6 +49,27 @@ function create() {
 
   shield = this.add.arc(width / 2, (height + 100) / 2, 125, 240, 300, false).setStrokeStyle(8, 0x00316E, 1);
 
+  var graphics = this.add.graphics();
+  graphics.lineStyle(3, 0x00316E, 1);
+  path = this.add.path(96, -32);
+  path.lineTo(960, 164);
+  path.lineTo(40, 164);
+  path.lineTo(480, 544);
+  path.lineTo(1980, 1080);
+
+  path.draw(graphics);
+
+
+  enemies = this.add.group({
+    classType: Enemy,
+    runChildUpdate: true
+  });
+  this.nextEnemy = 0;
+
+  bullets = this.add.group({
+    classType: Bullet,
+    runChildUpdate: true
+  });
 
   var t = this;
   this.input.on('pointermove', f, this);
@@ -61,7 +77,21 @@ function create() {
 
 }
 
-function update() {
+function update(time, delta) {
+
+  // if its time for the next enemy
+  if (time > this.nextEnemy) {
+    var enemy = enemies.get();
+    if (enemy) {
+      enemy.setActive(true);
+      enemy.setVisible(true);
+
+      // place the enemy at the start of the path
+      enemy.startOnPath();
+
+      this.nextEnemy = time + 2000;
+    }
+  }
 
   blocked = bullet.body.blocked;
   if (blocked["up"] == true || blocked["right"] == true || blocked["left"] == true || blocked["down"] == true) {
@@ -85,4 +115,20 @@ var d = function(pointer) {
     bullet.enableBody(true, turretGun.x, turretGun.y, true, true).setVelocity(velocity.x, velocity.y);
 
   }
+}
+
+function addBullet(x, y, angle) {
+  var bullet = bullets.get();
+  if (bullet) {
+    bullet.fire(x, y, angle);
+  }
+}
+
+function getEnemy(x, y, distance) {
+  var enemyUnits = enemies.getChildren();
+  for (var i = 0; i < enemyUnits.length; i++) {
+    if (enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) <= distance)
+      return enemyUnits[i];
+  }
+  return false;
 }
