@@ -27,7 +27,7 @@ var Bullet = new Phaser.Class({
     this.dx = Math.cos(angle);
     this.dy = Math.sin(angle);
 
-    this.lifespan = 300;
+    this.lifespan = 2000;
   },
 
   update: function(time, delta) {
